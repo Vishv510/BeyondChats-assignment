@@ -11,7 +11,7 @@ app = FastAPI()
 
 load_dotenv()  
 # MongoDB Connection
-client = AsyncIOMotorClient(os.getenv['MONGODB_URI'])
+client = AsyncIOMotorClient(os.getenv('MONGODB_URI', 'mongodb://localhost:27017/artical'))
 db = client.beyondchats_db
 
 @app.on_event("startup")
