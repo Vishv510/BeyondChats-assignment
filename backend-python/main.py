@@ -3,11 +3,15 @@ from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 # function to scrape the oldest article date 
 from scraper import get_oldest_articles  
+import os 
+from dotenv import load_dotenv
+
 
 app = FastAPI()
 
+load_dotenv()  
 # MongoDB Connection
-client = AsyncIOMotorClient("mongodb+srv://v87078523:3uIhaWOoKBhNRY3m@projectnew.tnlv3.mongodb.net/?appName=projectnew")
+client = AsyncIOMotorClient(os.getenv['MONGODB_URI'])
 db = client.beyondchats_db
 
 @app.on_event("startup")
