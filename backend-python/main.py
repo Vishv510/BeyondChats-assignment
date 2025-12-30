@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 # connect to MongoDB asynchronously
 from motor.motor_asyncio import AsyncIOMotorClient
 # function to scrape the oldest article date 
 from scraper import get_oldest_articles  
+from bson import ObjectId
 import os 
 from dotenv import load_dotenv
 
@@ -24,7 +25,17 @@ async def run_initial_scrape():
 
 @app.get("/articles")
 async def list_articles():
-    articles = await db.articles.find().to_list(1000)
+    articles = await db.articles.find().to_list(length=10000)
     for a in articles:
+        print(a)
         a["_id"] = str(a["_id"]) # Convert ObjectId to string for JSON
     return articles
+
+@app.put("/articles/{id}")
+async def update_article(id: str, payload: dict = Body(...)):
+    # This endpoint is specifically for your Phase 2 Node.js script
+    await db.articles.update_one(
+        {"_id": ObjectId(id)},
+        {"$set": payload}
+    )
+    return {"status": "success"}
