@@ -7,7 +7,7 @@ const agent = new https.Agent({
 });
 
 export async function scrapeArticle(url) {
-  console.log("Scraping URL:", url);
+  // console.log("in scrapeSrvice,  Scraping URL:", url);
 
   try{
     const res = await axios.get(url, {
@@ -25,7 +25,7 @@ export async function scrapeArticle(url) {
       $("main").text() ||
       $(".content").text();
   
-    console.log("Scraped Content Length:", content.length);
+    // console.log("Scraped Content Length:", content.length);
   
     return content.trim();
   } catch (error) { 

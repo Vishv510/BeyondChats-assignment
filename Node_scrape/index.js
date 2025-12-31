@@ -20,7 +20,7 @@ async function run() {
       const refs = await googleSearch(article.title);
       const refContents = [];
       // console.log("Found References:", refs.map(r => r.link));
-      // 2. Safely scrape references
+      // Safely scrape references
       for (const ref of refs) {
         const content = await scrapeArticle(ref.link);
         if (content) refContents.push(content);
@@ -32,20 +32,26 @@ async function run() {
         refContents[0] || "",
         refContents[1] || ""
       );
-      console.log("Optimized Content:", optimized.substring(0, 200));
+
+      if (!optimized) {
+        console.error("No optimized content generated for:", article.title);
+        continue;
+      }
+
+      // console.log("Optimized Content:", optimized.substring(0, 200));
+
       // 4. Send updated data back to Python API
       await updateArticle(article.id || article._id, {
         optimized_content: optimized,
         references: refs.map(r => r.link),
-        status: "completed" // Explicitly update status
+        status: "completed" 
       });
 
-      console.log("✅ Successfully Updated:", article.title);
+      console.log("Successfully Updated:", article.title);
     } catch (error) {
-      console.error(`❌ Failed to process ${article.title}:`, error.message);
+      console.error(`Failed to process ${article.title}:`, error.message);
     }
   }
-  // console.log("Updated:", article.title);
 }
 
 run();

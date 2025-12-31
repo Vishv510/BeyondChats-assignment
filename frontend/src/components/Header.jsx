@@ -1,4 +1,3 @@
-// src/components/Header.jsx
 const Header = () => {
   return (
     <header style={styles.header}>

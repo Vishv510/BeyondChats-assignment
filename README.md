@@ -1,299 +1,401 @@
-# Git Setup & Commit Strategy
+# BeyondChats Article Optimizer
 
-This document outlines the Git workflow used for this project.
+An intelligent article optimization system that scrapes articles from BeyondChats blogs, uses AI to rewrite and optimize them for SEO, and displays them in a professional web interface.
 
-## Initial Setup
+## 📋 Table of Contents
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
+- [Local Setup Instructions](#local-setup-instructions)
+- [Environment Variables](#environment-variables)
+- [Running the Application](#running-the-application)
+- [Project Structure](#project-structure)
+- [API Endpoints](#api-endpoints)
+- [Development Journey](#development-journey)
+- [Live Demo](#live-demo)
+
+---
+
+## ✨ Features
+
+### Phase 1: Web Scraping & Storage
+- Scrapes the 5 oldest articles from BeyondChats blogs
+- Stores articles in MongoDB with original content
+- RESTful CRUD API for article management
+
+### Phase 2: AI-Powered Optimization
+- Searches article titles on Google using SerpAPI
+- Scrapes top 2 ranking articles for reference
+- Uses Google Gemini AI to rewrite articles with:
+  - Improved SEO structure
+  - Better formatting (headings, bullet points)
+  - Professional tone
+  - Citations from reference articles
+- Automatically updates articles in database
+
+### Phase 3: Modern Web Interface
+- Responsive React frontend with Tailwind CSS
+- Toggle between original and AI-optimized versions
+- Beautiful markdown rendering
+- Reference links with hover effects
+- Mobile-friendly design
+
+---
+
+## 🛠 Tech Stack
+
+### Backend (Python - FastAPI)
+- **FastAPI**: Modern Python web framework
+- **Motor**: Async MongoDB driver
+- **BeautifulSoup4**: Web scraping
+- **Pydantic**: Data validation
+
+### Optimization Script (Node.js)
+- **Node.js**: JavaScript runtime
+- **Axios**: HTTP client
+- **Cheerio**: HTML parsing
+- **Google Gemini AI**: Content generation
+- **SerpAPI**: Google search integration
+
+### Frontend (React)
+- **React 19**: UI library
+- **Vite**: Build tool
+- **Tailwind CSS**: Styling
+- **react-markdown**: Markdown rendering
+- **Lucide React**: Icons
+
+### Database
+- **MongoDB**: NoSQL database
+
+---
+
+## 🏗 Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         USER INTERFACE                          │
+│                     (React + Tailwind CSS)                      │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐           │
+│  │   Article    │  │   Toggle     │  │  References  │           │
+│  │    List      │  │   Original/  │  │    Display   │           │
+│  │              │  │   Optimized  │  │              │           │
+│  └──────────────┘  └──────────────┘  └──────────────┘           │
+└─────────────────────────────────────────────────────────────────┘
+                              ↕
+┌─────────────────────────────────────────────────────────────────┐
+│                     FASTAPI BACKEND (Python)                    │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  GET /articles      - Fetch all articles                 │   │
+│  │  PUT /articles/{id} - Update article                     │   │
+│  │  POST /articles/{id}/optimize - Trigger optimization     │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                              ↕
+┌─────────────────────────────────────────────────────────────────┐
+│                      MONGODB DATABASE                           │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  Articles Collection:                                    │   │
+│  │  - title, original_content, source_url                   │   │
+│  │  - optimized_content, references, status                 │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                              ↕
+┌─────────────────────────────────────────────────────────────────┐
+│                 NODE.JS OPTIMIZATION SCRIPT                     │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  1. Fetch articles from API                              │   │
+│  │  2. Search Google for article title (SerpAPI)            │   │
+│  │  3. Scrape top 2 results (Cheerio)                       │   │ 
+│  │  4. Generate optimized content (Gemini AI)               │   │
+│  │  5. Update article via API                               │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                     ↕                    ↕
+        ┌─────────────────────┐  ┌─────────────────────┐
+        │   SERPAPI           │  │  GOOGLE GEMINI AI   │
+        │  (Google Search)    │  │  (Content Gen)      │
+        └─────────────────────┘  └─────────────────────┘
+```
+
+### Data Flow
+
+1. **Initial Scraping** (Startup)
+   - Python backend scrapes 5 oldest articles from BeyondChats
+   - Stores in MongoDB with original content
+
+2. **Optimization Process** (Node Script)
+   - Fetches unprocessed articles from API
+   - Searches Google for each article title
+   - Scrapes reference articles
+   - Sends to Gemini AI for rewriting
+   - Updates database with optimized content
+
+3. **User Interface** (React)
+   - Fetches articles from API
+   - Displays original and optimized versions
+   - Shows references with links
+
+---
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Python 3.8+** ([Download](https://www.python.org/downloads/))
+- **Node.js 16+** and npm ([Download](https://nodejs.org/))
+- **MongoDB 5.0+** ([Download](https://www.mongodb.com/try/download/community))
+- **Git** ([Download](https://git-scm.com/downloads))
+
+### API Keys Required
+
+1. **Google Gemini API Key**
+   - Get it from: https://aistudio.google.com/app/apikey
+   
+2. **SerpAPI Key**
+   - Get it from: https://serpapi.com/
+   - Free tier: 100 searches/month
+
+---
+
+## 🚀 Local Setup Instructions
+
+### 1. Clone the Repository
 
 ```bash
-# Initialize Git repository
-git init
-
-# Add all files
-git add .
-
-# Initial commit
-git commit -m "chore: initial project setup"
-
-# Create GitHub repository (via GitHub web interface)
-
-# Add remote
-git remote add origin https://github.com/your-username/beyondchats-optimizer.git
-
-# Push to GitHub
-git branch -M main
-git push -u origin main
+git clone <your-repo-url>
+cd beyondchats-article-optimizer
 ```
 
----
-
-## Branch Strategy
-
-### Main Branches
-- `main`: Production-ready code
-- `develop`: Development branch for integration
-
-### Feature Branches
-- `feature/phase-1-scraping`: Web scraping implementation
-- `feature/phase-2-optimization`: AI optimization pipeline
-- `feature/phase-3-frontend`: React UI development
-- `fix/gemini-api`: Bug fixes
-- `docs/readme`: Documentation updates
-
----
-
-## Commit Message Convention
-
-Following [Conventional Commits](https://www.conventionalcommits.org/):
-
-### Format
-```
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
-```
-
-### Types
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation only
-- `style`: Code style (formatting, missing semicolons, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding tests
-- `chore`: Maintenance tasks
-
-### Examples
-```bash
-feat(backend): implement BeyondChats scraper
-fix(llm): correct Gemini API response parsing
-docs(readme): add architecture diagram
-style(frontend): format ArticleViewer component
-refactor(node): improve error handling in scrapeService
-test(api): add unit tests for article endpoints
-chore(deps): update dependencies
-```
-
----
-
-## Development Journey Commits
-
-This project followed a structured commit history showing development phases:
-
-### Phase 1: Foundation (Days 1-2)
-```bash
-git commit -m "chore: initialize project structure"
-git commit -m "feat(backend): setup FastAPI with basic structure"
-git commit -m "feat(backend): add MongoDB connection with Motor"
-git commit -m "feat(scraper): implement BeyondChats blog scraper"
-git commit -m "feat(api): create CRUD endpoints for articles"
-git commit -m "feat(backend): add automatic scraping on startup"
-git commit -m "test(backend): verify article fetching and storage"
-```
-
-### Phase 2: AI Pipeline (Days 3-5)
-```bash
-git commit -m "feat(node): initialize Node.js optimization script"
-git commit -m "feat(node): integrate SerpAPI for Google Search"
-git commit -m "feat(node): implement article content scraping"
-git commit -m "feat(llm): add Google Gemini AI integration"
-git commit -m "feat(node): create full optimization workflow"
-git commit -m "fix(llm): correct API response parsing"
-git commit -m "feat(node): add reference citation system"
-git commit -m "refactor(node): improve error handling"
-```
-
-### Phase 3: Frontend (Days 6-7)
-```bash
-git commit -m "feat(frontend): initialize React + Vite + Tailwind"
-git commit -m "feat(ui): create Header component"
-git commit -m "feat(ui): implement ArticleList with selection"
-git commit -m "feat(ui): build ArticleViewer with markdown rendering"
-git commit -m "feat(ui): add toggle between original/optimized"
-git commit -m "style(ui): design reference section with hover effects"
-git commit -m "feat(ui): make responsive for mobile"
-git commit -m "feat(ui): add loading states"
-```
-
-### Documentation & Polish (Day 8)
-```bash
-git commit -m "docs(readme): create comprehensive README"
-git commit -m "docs: add architecture diagram"
-git commit -m "docs(deploy): create deployment guide"
-git commit -m "chore: add .gitignore for all environments"
-git commit -m "chore(deps): add requirements.txt for Python"
-git commit -m "feat(root): add concurrently for easy startup"
-git commit -m "docs(contributing): add contribution guidelines"
-git commit -m "ci: add GitHub Actions workflow"
-git commit -m "docs(readme): add troubleshooting section"
-git commit -m "chore: final cleanup and testing"
-```
-
----
-
-## How to Maintain Good Commit History
-
-### DO:
-- ✅ Commit frequently (every major change)
-- ✅ Write clear, descriptive messages
-- ✅ Use conventional commit format
-- ✅ Keep commits focused (one feature/fix per commit)
-- ✅ Test before committing
-
-### DON'T:
-- ❌ Make huge commits with multiple changes
-- ❌ Use vague messages like "fix stuff" or "update"
-- ❌ Commit broken code
-- ❌ Mix multiple features in one commit
-
----
-
-## Example Workflow
+### 2. Setup Python Backend
 
 ```bash
-# Create feature branch
-git checkout -b feature/new-feature
+# Navigate to backend directory
+cd backend-python
 
-# Make changes
-# ... code changes ...
+# Create virtual environment
+python -m venv venv
 
-# Stage changes
-git add .
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
 
-# Commit with conventional format
-git commit -m "feat(component): add new feature description"
+# Install dependencies
+pip install fastapi uvicorn motor python-dotenv beautifulsoup4 requests pydantic
 
-# Push to GitHub
-git push origin feature/new-feature
+# Create .env file (optional, if using custom MongoDB URI)
+echo "MONGODB_URI=mongodb://localhost:27017/artical" > .env
 
-# Create Pull Request on GitHub
-# Merge after review
-
-# Update main
-git checkout main
-git pull origin main
+# Start this 
+ uvicorn main:app --reload
 ```
+## start other terminal
 
----
-
-## Git Commands Cheatsheet
+### 3. Setup Node.js Optimization Script
 
 ```bash
-# Check status
-git status
+# Navigate to Node script directory
+cd Node_scrape
 
-# View commit history
-git log --oneline
+# Install dependencies
+npm install
 
-# Create branch
-git checkout -b branch-name
+# Create .env file
+cat > .env << EOL
+GEMINI_KEY=your_gemini_api_key_here
+SERP_API_KEY=your_serpapi_key_here
+EOL
 
-# Switch branch
-git checkout branch-name
-
-# View changes
-git diff
-
-# Undo last commit (keep changes)
-git reset --soft HEAD~1
-
-# View remote URL
-git remote -v
-
-# Pull latest changes
-git pull origin main
-
-# Push changes
-git push origin branch-name
-
-# View branches
-git branch -a
-
-# Delete branch
-git branch -d branch-name
+# run the terminal
+npm run dev
 ```
+## start other terminal
 
----
-
-## For Reviewers
-
-To see the development journey:
+### 4. Setup React Frontend
 
 ```bash
-# Clone repository
-git clone https://github.com/your-username/beyondchats-optimizer.git
+# Navigate to frontend directory
+cd frontend
 
-# View commit history
-git log --oneline --graph --all
+# Install dependencies
+npm install
 
-# See specific commit
-git show <commit-hash>
-
-# View changes over time
-git log --stat
-
-# See who changed what
-git blame filename.py
+# Go back to root
+npm run dev
 ```
 
 ---
 
-## Recommended Git Tools
+## 🔑 Environment Variables
 
-- **GitHub Desktop**: GUI for Git
-- **GitKraken**: Visual Git client
-- **VS Code Git**: Built-in Git support
-- **Oh My Zsh**: Enhanced terminal with Git info
+### Backend Python (.env in `backend-python/`)
+```env
+MONGODB_URI=mongodb://localhost:27017/artical
+```
 
----
-
-## Pre-commit Checklist
-
-Before every commit:
-
-- [ ] Code runs without errors
-- [ ] No console.log/print statements (unless intentional)
-- [ ] Formatted code (Prettier/Black)
-- [ ] Updated relevant documentation
-- [ ] Tested the specific change
-- [ ] Meaningful commit message written
+### Node Script (.env in `Node_scrape/`)
+```env
+GEMINI_KEY=your_google_gemini_api_key
+SERP_API_KEY=your_serpapi_key
+```
 
 ---
 
-## Tags for Releases
+## ▶️ Running the Application
 
+**Terminal 1 - MongoDB** (if not running as service):
 ```bash
-# Create tag for submission
-git tag -a v1.0.0 -m "Assignment submission version"
+mongod
+```
 
-# Push tag
-git push origin v1.0.0
+**Terminal 2 - Python Backend**:
+```bash
+cd backend-python
+# Activate venv first (see setup instructions)
+uvicorn main:app --reload
+```
 
-# List tags
-git tag -l
+**Terminal 3 - Node Optimization Script**:
+```bash
+cd Node_scrape
+npm run dev
+```
+
+**Terminal 4 - React Frontend**:
+```bash
+cd frontend
+npm run dev
+```
+
+### Access the Application
+
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+
+---
+
+## 📁 Project Structure
+
+```
+beyondchats-article-optimizer/
+│
+├── backend-python/              # FastAPI Backend
+│   ├── main.py                  # API endpoints
+│   ├── scraper.py               # Web scraping logic
+│   ├── model.py                 # Data models
+│   └── .env                     # Environment variables
+│
+├── Node_scrape/                 # Node.js Optimization Script
+│   ├── index.js                 # Main orchestrator
+│   ├── services/
+│   │   ├── articleService.js    # API calls
+│   │   ├── googleService.js     # Google search
+│   │   ├── scrapeService.js     # Content scraping
+│   │   └── llmService.js        # AI generation
+│   ├── package.json
+│   └── .env                     # API keys
+│
+├── frontend/                    # React Frontend
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Header.jsx
+│   │   │   ├── ArticleList.jsx
+│   │   │   └── ArticleViewer.jsx
+│   │   ├── pages/
+│   │   │   └── Dashboard.jsx
+│   │   ├── api/
+│   │   │   └── articles.js
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── package.json
+│   └── tailwind.config.js
+│
+└── README.md                    # This file
 ```
 
 ---
 
-## GitHub Repository Best Practices
+## 🔌 API Endpoints
 
-1. **Add Topics**: `react`, `fastapi`, `ai`, `web-scraping`, `mongodb`
-2. **Add Description**: "AI-powered article optimizer using FastAPI, Node.js, and React"
-3. **Add Website**: Link to deployed frontend
-4. **Enable Issues**: For tracking bugs/features
-5. **Add License**: MIT or similar
-6. **Pin Important Repos**: Make this visible on your profile
+### FastAPI Backend
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/articles` | Fetch all articles |
+| PUT | `/articles/{id}` | Update article by ID |
+| POST | `/articles/{id}/` | Trigger optimization for specific article |
+
+
+### Example Requests
+
+**Get all articles:**
+```bash
+curl http://localhost:8000/articles
+```
 
 ---
 
-## Final Submission Checklist
+## 🌐 Live Demo
 
-- [ ] All code committed and pushed
-- [ ] README.md is comprehensive
-- [ ] .gitignore is properly configured
-- [ ] Frequent commits showing development journey
-- [ ] Repository is public
-- [ ] Deployment links added to README
-- [ ] No sensitive data (API keys) in commits
-- [ ] Clean commit history
-- [ ] Documentation is complete
+**Live Link**: [Your Deployed Frontend URL]
+
+### How to Test the Application
+
+1. **View Articles**
+   - Open the live link
+   - See list of 5 articles on the left sidebar
+   - Click any article to view it
+
+2. **Compare Versions**
+   - Click "AI Optimized" button to see the rewritten version
+   - Click "Original" to see the original scraped content
+   - Notice improved formatting, headings, and structure
+
+3. **Check References**
+   - Scroll to bottom of optimized articles
+   - See clickable reference links to source articles
+   - Hover over reference cards for interaction
+
+### What to Look For
+
+- ✨ **Original Content**: Raw scraped text from BeyondChats
+- 🤖 **AI-Optimized**: Rewritten with:
+  - Clear summary at the top
+  - Proper H2/H3 headings
+  - Bullet points for lists
+  - Bold keywords
+  - SEO-friendly structure
+- 📚 **References**: Links to top-ranking Google articles used as inspiration
+
+---
+
+### Node Script Manual Run
+```bash
+cd Node_scrape
+npm start
+# Watch console for scraping and AI generation logs
+```
+
+### Frontend Development
+```bash
+cd frontend
+npm run dev
+# Open http://localhost:5173
+```
+
+---
+
+## 📄 License
+
+This project was created as part of the BeyondChats technical assignment.
+
+---
+
+## 🙏 Acknowledgments
+
+- BeyondChats for the assignment opportunity
+- Google Gemini AI for content generation
+- SerpAPI for search functionality
+- MongoDB, FastAPI, React communities for excellent documentation

@@ -6,7 +6,8 @@ import ArticleViewer from "../components/ArticleViewer";
 export default function Dashboard() {
     const [articles, setArticles] = useState([]);
     const [selected, setSelected] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [showList, setShowList] = useState(true);
+    const [showOptimized, setShowOptimized] = useState(false);
     
     const loadArticles = useCallback(async () => {
         const res = await fetchArticles();
@@ -24,33 +25,43 @@ export default function Dashboard() {
         }
     }, [articles]);
 
+    const handleSelect = (article) => {
+        setSelected(article);
+        // Only hide list on mobile screens
+        if (window.innerWidth < 768) {
+            setShowList(false);
+        }
+    };
+
     const handleOptimize = async () => {
         if (!selected) return;
-        setLoading(true);
 
         await optimizeArticle(selected._id);
-        
-        setTimeout(async () => {
-            await loadArticles();
-            setLoading(false);
-        }, 3000);
+        loadArticles();
     };
 
     return (
-        <div className="h-screen flex">
-        {/* Sidebar */}
-        <ArticleList
-            articles={articles}
-            onSelect={setSelected }
-            selected={selected}
-        />
+        <div className="h-screen flex flex-col md:flex-row  overflow-hidden">
+        
+            <div className={`md:w-72 w-full ${showList ? 'block' : 'hidden md:block'}`}>
+                <ArticleList
+                    articles={articles}
+                    selected={selected}
+                    onSelect={handleSelect}
+                />
+            </div>
 
-        {/* Main content */}
-        <ArticleViewer
-            article={selected}
-            onOptimize={handleOptimize}
-            loading={loading}
-        />
+            {(              
+                <main className={`flex-1 ${!showList ? 'block' : 'hidden md:block'}`}>
+                    <ArticleViewer
+                        article={selected}
+                        optimized={showOptimized}
+                        onToggle={() => setShowOptimized(!showOptimized)}
+                        onOptimize={handleOptimize}
+                        onBack={() => setShowList(true)}
+                    />
+                </main>
+            )}        
         </div>
     );
 }

@@ -8,5 +8,6 @@ class ArticleSchema(BaseModel):
     source_url: str
     # These will be null until Phase 2
     optimized_content: Optional[str] = None
+    source_url : str
     references: List[str] = []
     created_at: datetime = Field(default_factory=datetime.utcnow)
