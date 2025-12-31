@@ -401,26 +401,26 @@ This project was created as part of the BeyondChats technical assignment.
 - MongoDB, FastAPI, React communities for excellent documentation
 
 
-### photo
+### photo / screenshots
 
 ## local terminal 
-![alt text](./frontend/public/Screenshot%202025-12-31%20174716.png)
+![Terminal](./frontend/public/Screenshot%202025-12-31%20174716.png)
 
 ---
 
 ## frontend output
 - screen (large)
-![alt text](./frontend/public/frontend%20screen.png)
+![Original text](./frontend/public/frontend%20screen.png)
 
 
 - screen (large - ai generated, optimize content)
-![alt text](./frontend/public/frontscreen%20as%20aigenerated.png)
+![Optimaze Content](./frontend/public/frontscreen%20as%20aigenerated.png)
 
 - screen ( mobile )
-![alt text](./frontend/public/mobile%20frontend.png)
+![Mobile view](./frontend/public/mobile%20frontend.png)
 
 
 ## database output
 
-![alt text](./frontend/public/DataBase.png)
+![Database](./frontend/public/DataBase.png)
 
