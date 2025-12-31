@@ -39,7 +39,7 @@ async def run_initial_scrape():
 async def list_articles():
     articles = await db.articles.find().to_list(length=10000)
     for a in articles:
-        print(a)
+        # print(a)
         a["_id"] = str(a["_id"]) # Convert ObjectId to string for JSON
     return articles
 

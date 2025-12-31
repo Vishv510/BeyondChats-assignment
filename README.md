@@ -163,7 +163,7 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Vishv510/BeyondChats-assignment.git
 cd beyondchats-article-optimizer
 ```
 
@@ -399,3 +399,28 @@ This project was created as part of the BeyondChats technical assignment.
 - Google Gemini AI for content generation
 - SerpAPI for search functionality
 - MongoDB, FastAPI, React communities for excellent documentation
+
+
+### photo
+
+## local terminal 
+![alt text](./frontend/public/Screenshot%202025-12-31%20174716.png)
+
+---
+
+## frontend output
+- screen (large)
+![alt text](./frontend/public/frontend%20screen.png)
+
+
+- screen (large - ai generated, optimize content)
+![alt text](./frontend/public/frontscreen%20as%20aigenerated.png)
+
+- screen ( mobile )
+![alt text](./frontend/public/mobile%20frontend.png)
+
+
+## database output
+
+![alt text](./frontend/public/DataBase.png)
+
