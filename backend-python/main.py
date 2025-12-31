@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Body
+from fastapi.middleware.cors import CORSMiddleware
 # connect to MongoDB asynchronously
 from motor.motor_asyncio import AsyncIOMotorClient
 # function to scrape the oldest article date 
@@ -9,6 +10,17 @@ from dotenv import load_dotenv
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 load_dotenv()  
 # MongoDB Connection
